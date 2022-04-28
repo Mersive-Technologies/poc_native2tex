@@ -1,10 +1,9 @@
 package live.ditto.myapplication
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import live.ditto.myapplication.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -24,18 +23,23 @@ class MainActivity : AppCompatActivity() {
         webView.addJavascriptInterface(this, "JSInterface");
         webView.settings.javaScriptEnabled = true;
 //        webView.loadUrl("https://google.com")
-        webView.evaluateJavascript("""
-            const bytes = Uint8Array.from([1,2,3]);
-            //const bytes = 'test';
-            window.JSInterface.callback(bytes)
-        """.trimIndent()) {
-            println("${it}")
-        }
+        webView.loadUrl("file:///android_asset/index.html")
+
+//        webView.evaluateJavascript("""
+//            const bytes = Uint8Array.from([1,2,3]);
+//            //const bytes = 'test';
+//            window.JSInterface.callback(bytes)
+//        """.trimIndent()) {
+//            println("${it}")
+//        }
     }
 
     @JavascriptInterface
-    fun callback(text: ByteArray) {
-        println(text)
+    fun callback(bytes: ByteArray): String {
+        println("Hello Kotlin")
+        bytes[0] = 42;
+        sendData(127.toByte(), bytes)
+        return "test";
     }
 
     /**
@@ -43,6 +47,8 @@ class MainActivity : AppCompatActivity() {
      * which is packaged with this application.
      */
     external fun stringFromJNI(): String
+
+    private external fun sendData(color: Byte, data: ByteArray)
 
     companion object {
         // Used to load the 'myapplication' library on application startup.
